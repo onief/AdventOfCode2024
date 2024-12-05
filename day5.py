@@ -70,7 +70,7 @@ def check_and_eval_ordering(ordering: List[int], topol_sorting: Dict[(int, int)]
 
 # 1 + 2)
 
-def eval_ordering(ordering: List[int]) -> int:
+def eval_ordering(ordering: List[int]) -> Tuple[int, int]:
     nodes = set(ordering)
     graph = create_graph(nodes, rules)
     topol_sorting = create_topol_sorting(nodes, graph)
