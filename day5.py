@@ -5,9 +5,6 @@ from typing import Deque, Dict, List, Set, Tuple
 
 
 inputs = [line.strip("\n") for line in sys.stdin]
-# f = open("test", "r")
-# inputs = [line.strip("\n") for line in f.readlines()]
-# f.close()
 
 split = inputs.index('')
 rules = [[int(x) for x in r.split('|')] for r in inputs[:split]]
