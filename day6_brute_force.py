@@ -117,24 +117,29 @@ def check_circle(grid: List[List[str]], position: Position, direction: Position,
         return False
     
 
-def check_circle_bruteforce(grid: List[List[str]], position: Position, direction: Position, already_circle: Set[Tuple[int, int]]) -> bool:
+def check_circle_bruteforce(grid: List[List[str]], position: Position, direction: Position) -> bool:
     for i in range(len(grid)):
         for j in range(len(grid[0])):
-            if check_circle(grid, position, direction, (i, j), already_circle):
-                return True
+            if position.i != i or position.j != j:
+                new_grid = grid.copy()
+                new_grid[i][j] = '#'
+                if run_throuh_grid(new_grid, position, direction)[1]:
+                    return True
     
 
-def run_throuh_grid(grid: List[List[str]], position: Position, direction: Position) -> Tuple[int, int, List[List[str]]]:
+def run_throuh_grid(grid: List[List[str]], position: Position, direction: Position) -> Tuple[int, bool]:
     distinct_fields_visited = set()
     already_circle_plus_guard_start = set([(position.i, position.j)])
     circle_counter = 0
 
-    while position.is_valid(grid):
+    pos_dir_visited = set()
+
+    while position.is_valid(grid) and (position.i, position.j, direction.i, direction.j) not in pos_dir_visited:
         distinct_fields_visited.add((position.i, position.j))
         # mark_grid(grid, position, direction)
 
-        if check_circle_bruteforce(grid, position, direction, already_circle_plus_guard_start):
-            circle_counter += 1
+        # if check_circle_bruteforce(grid, position, direction, already_circle_plus_guard_start):
+        #     circle_counter += 1
     
         position + direction
 
@@ -143,16 +148,33 @@ def run_throuh_grid(grid: List[List[str]], position: Position, direction: Positi
 
         if grid[position.i][position.j] == '#':
             position - direction
+            pos_dir_visited.add((position.i, position.j, direction.i, direction.j))
             # mark_grid(grid, position, direction)
             direction.rotate()
 
-    return len(distinct_fields_visited), circle_counter, grid
+    cyclic = (position.i, position.j, direction.i, direction.j) in pos_dir_visited
+
+    return len(distinct_fields_visited), cyclic
 
 
-# 1 + 2)
 start = find_start(grid)
 direction = Position(-1, 0)
-result_1, result_2, grid = run_throuh_grid(grid, start, direction)
 
+# 1)
+result_1, _ = run_throuh_grid(grid, Position(start.i, start.j), Position(direction.i, direction.j))
 print(result_1)
+
+# 2)
+# Bruteforce it in:
+
+print(len(grid), len(grid[0]))
+result_2 = 0
+for i in range(len(grid)):
+    for j in range(len(grid[0])):
+        print(i, j)
+        if start.i != i or start.j != j:
+            new_grid = copy.deepcopy(grid)
+            new_grid[i][j] = '#'
+            if run_throuh_grid(new_grid, Position(start.i, start.j), Position(direction.i, direction.j))[1]:
+                result_2 += 1
 print(result_2)
