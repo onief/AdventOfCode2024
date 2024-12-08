@@ -2,7 +2,7 @@ from itertools import combinations
 import operator
 import sys
 
-
+# xD
 grid = [list(line.strip("\n")) for line in sys.stdin]
 antenna_positions = {sign: [(i, j) for i in range(len(grid)) for j in range(len(grid[0])) if sign == grid[i][j]] for sign in {elem for row in grid for elem in row if elem != '.'}}
 
