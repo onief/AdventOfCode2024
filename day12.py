@@ -1,11 +1,11 @@
-from collections import deque
+from collections import defaultdict, deque
 import operator
 import sys
 from typing import List, Tuple
 
 
 # farm = [line.strip('\n') for line in sys.stdin]
-f = open("input/day12")
+f = open("smol.txt")
 farm = [line.strip('\n') for line in f.readlines()]
 f.close()
 
@@ -34,7 +34,8 @@ def find_regions(farm: List[str]) -> List[Tuple[str, List[Tuple[int, int]]]]:
     return regions
 
 
-def price_for_region(region: List[Tuple[str, Tuple[int, int]]], farm: List[str]) -> int:
+# 1)
+def price_for_region_1(region: List[Tuple[str, Tuple[int, int]]], farm: List[str]) -> int:
     field_type, farm_fields = region
     area = len(farm_fields)
     
@@ -48,5 +49,48 @@ def price_for_region(region: List[Tuple[str, Tuple[int, int]]], farm: List[str])
     
     return area * perimeter
 
+result_1 = sum([(price_for_region_1(region, farm)) for region in find_regions(farm)])
+print(result_1)
 
-print(sum([(price_for_region(region, farm)) for region in find_regions(farm)]))
+
+# 2)
+def price_for_region_2(region: List[Tuple[str, Tuple[int, int]]], farm: List[str]) -> int:
+    field_type, farm_fields = region
+    area = len(farm_fields)
+    
+    print(field_type)
+    print(farm_fields)
+
+    def get_sides(idx: int) -> int:
+        other_idx = abs(idx - 1)
+
+        grouped_by_idx_slice = {} 
+        for field in farm_fields:
+            grouped_by_idx_slice.setdefault(field[idx], []).append(field)
+        print(grouped_by_idx_slice)
+        
+        sides = 0
+        for idx_slice in grouped_by_idx_slice.values():
+            side_list = []
+            for t in sorted(idx_slice, key=lambda x: x[other_idx]):
+                if side_list:
+                    if abs(side_list[-1][-1][other_idx] - t[other_idx]) <= 1:
+                        side_list[-1].append(t)
+                    else:
+                        side_list.append([t])
+                else:
+                    side_list.append([t])
+            sides += len(side_list)
+        
+        return sides
+
+    num_sides = get_sides(0) + get_sides(1)
+
+    return area * num_sides
+
+
+for region in find_regions(farm):
+    price_for_region_2(region, farm)
+    print()
+# result_2 = sum([(price_for_region_2(region, farm)) for region in find_regions(farm)])
+# print(result_2)
