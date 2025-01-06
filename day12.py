@@ -4,10 +4,7 @@ import sys
 from typing import List, Tuple
 
 
-# farm = [line.strip('\n') for line in sys.stdin]
-f = open("smol.txt")
-farm = [line.strip('\n') for line in f.readlines()]
-f.close()
+farm = [line.strip('\n') for line in sys.stdin]
 
 
 def find_regions(farm: List[str]) -> List[Tuple[str, List[Tuple[int, int]]]]:
@@ -54,43 +51,53 @@ print(result_1)
 
 
 # 2)
-def price_for_region_2(region: List[Tuple[str, Tuple[int, int]]], farm: List[str]) -> int:
-    field_type, farm_fields = region
+def price_for_region_2(region: List[Tuple[str, Tuple[int, int]]]) -> int:
+    _, farm_fields = region
     area = len(farm_fields)
-    
-    print(field_type)
-    print(farm_fields)
 
-    def get_sides(idx: int) -> int:
-        other_idx = abs(idx - 1)
+    min_i = min(farm_fields, key=lambda x: x[0])[0]
+    max_i = max(farm_fields, key=lambda x: x[0])[0]
+    min_j = min(farm_fields, key=lambda x: x[1])[1]
+    max_j = max(farm_fields, key=lambda x: x[1])[1]
 
-        grouped_by_idx_slice = {} 
-        for field in farm_fields:
-            grouped_by_idx_slice.setdefault(field[idx], []).append(field)
-        print(grouped_by_idx_slice)
-        
+    i_size = max_i - min_i + 3
+    j_size = max_j - min_j + 3
+
+    field = [[False for _ in range(j_size)] for _ in range(i_size)]
+
+    for (i, j) in farm_fields:
+        field[i - min_i + 1][j - min_j + 1] = True
+
+
+    def get_sides(f: List[List[bool]]) -> int:
         sides = 0
-        for idx_slice in grouped_by_idx_slice.values():
-            side_list = []
-            for t in sorted(idx_slice, key=lambda x: x[other_idx]):
-                if side_list:
-                    if abs(side_list[-1][-1][other_idx] - t[other_idx]) <= 1:
-                        side_list[-1].append(t)
-                    else:
-                        side_list.append([t])
-                else:
-                    side_list.append([t])
-            sides += len(side_list)
         
+        iterations = len(f) - 1
+        for k in range(iterations):
+            first = f[k]
+            second = f[k+1]
+            currently_top_side = False
+            currently_bottom_side = False
+            for i in range(len(first)):
+                if currently_top_side and (not second[i] or not (first[i] ^ second[i])):
+                    sides += 1
+                    currently_top_side = False
+                if currently_bottom_side and (not first[i] or not (first[i] ^ second[i])):
+                    sides += 1 
+                    currently_bottom_side = False
+                if not currently_top_side and not first[i] and second[i]:
+                    currently_top_side = True
+                if not currently_bottom_side and first[i] and not second[i]:
+                    currently_bottom_side = True
+
         return sides
 
-    num_sides = get_sides(0) + get_sides(1)
+    horizontally = get_sides(field)
+    vertically = get_sides([[row[i] for row in field] for i in range(len(field[0]))])
+
+    num_sides = horizontally + vertically
 
     return area * num_sides
 
-
-for region in find_regions(farm):
-    price_for_region_2(region, farm)
-    print()
-# result_2 = sum([(price_for_region_2(region, farm)) for region in find_regions(farm)])
-# print(result_2)
+result_2 = sum([(price_for_region_2(region)) for region in find_regions(farm)])
+print(result_2)
