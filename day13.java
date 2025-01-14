@@ -60,7 +60,7 @@ class day13 {
         System.out.println("Hello World");
 
         byte test = 3;
-        int test2 = 4;
+        int test2 = 5;
         System.out.println(test + test2);
         boolean test3 = false;
         int test4 = test3 ? 1 : 0;
@@ -156,6 +156,8 @@ class day13 {
 
         ArrayList<Integer> numbers = new ArrayList<Integer>();
         List<Integer> numbers2 = Arrays.stream(num).boxed().toList();
-        List<Integer> numbers3 = Arrays.asList(1,2,3);
+        List<Integer> numbers3 = Arrays.asList(1,2,4);
+
+        System.out.println(numbers);
     }
 }
